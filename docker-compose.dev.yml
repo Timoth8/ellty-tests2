@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: ellty-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: ellty-comments
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - ellty-network-dev
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: ellty-backend-dev
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://admin:admin123@mongodb:27017/ellty-comments?authSource=admin
+      JWT_SECRET: your-secret-key-change-this-in-production-2024
+      NODE_ENV: development
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app/server
+      - /app/node_modules
+    depends_on:
+      - mongodb
+    networks:
+      - ellty-network-dev
+    command: npm run server
+
+networks:
+  ellty-network-dev:
+    driver: bridge
+
+volumes:
+  mongodb_dev_data:
+    driver: local
