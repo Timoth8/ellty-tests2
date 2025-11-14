@@ -1,9 +1,26 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
 
 const app = express();
+const server = http.createServer(app);
+
+// Socket.IO setup with CORS
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production' 
+      ? process.env.CLIENT_URL || '*' 
+      : ['http://localhost:3000', 'http://localhost'],
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+// Make io accessible to routes
+app.set('io', io);
 
 // Middleware
 app.use(cors());
@@ -16,6 +33,15 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => console.log('✅ MongoDB connected successfully'))
 .catch((err) => console.error('❌ MongoDB connection error:', err));
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('👤 User connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('👋 User disconnected:', socket.id);
+  });
+});
 
 // Routes
 const commentRoutes = require('./routes/comments');
@@ -32,6 +58,7 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`🔌 Socket.IO is ready for real-time connections`);
 });

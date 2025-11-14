@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 
 const CommentForm = ({ onSubmit, onCancel, isReply = false }) => {
   const [content, setContent] = useState('');
-  const { user } = useAuth();
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -75,6 +75,7 @@ Open your browser to:
 - **Local Dev**: `http://localhost:3000`
 
 You should see:
+- ✅ **Real-time updates** - Open in multiple windows to see live updates!
 - ✅ Login/Register functionality (JWT authentication)
 - ✅ View comments without login (public access)
 - ✅ Nested comments with zig-zag alignment
@@ -86,6 +87,13 @@ You should see:
 - alex@example.com / password123
 - sarah@example.com / password123
 - mike@example.com / password123
+
+### 🔌 Test Real-Time Features
+Open the app in **two browser windows**:
+1. Post a comment in Window 1
+2. ✅ Watch it appear instantly in Window 2!
+
+See [REALTIME_FEATURES.md](./REALTIME_FEATURES.md) for details
 
 ---
 

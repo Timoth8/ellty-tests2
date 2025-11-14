@@ -1,22 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import io from 'socket.io-client';
 import { useAuth } from './context/AuthContext';
 import CommentList from './components/CommentList';
 import CommentForm from './components/CommentForm';
 import Login from './components/Login';
 import Register from './components/Register';
 
+// API Configuration
+const API_URL = process.env.REACT_APP_API_URL || 
+  (process.env.NODE_ENV === 'production' ? 'https://your-backend-url.up.railway.app' : 'http://localhost:5000');
+
+// Socket.IO connection
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || API_URL;
+
+// Set axios base URL
+axios.defaults.baseURL = API_URL;
+
 function App() {
   const [comments, setComments] = useState([]);
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [socket, setSocket] = useState(null);
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
 
   useEffect(() => {
     fetchComments();
+    
+    // Initialize Socket.IO connection
+    const newSocket = io(SOCKET_URL, {
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
+    });
+    
+    setSocket(newSocket);
+    
+    // Cleanup on unmount
+    return () => {
+      if (newSocket) {
+        newSocket.disconnect();
+      }
+    };
   }, []);
+
+  // Socket.IO event listeners
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('connect', () => {
+      console.log('🔌 Connected to real-time server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('🔌 Disconnected from real-time server');
+    });
+
+    socket.on('newComment', (newComment) => {
+      console.log('📨 New comment received:', newComment);
+      // Refresh comments to maintain nested structure
+      fetchComments();
+    });
+
+    socket.on('commentDeleted', (deletedCommentId) => {
+      console.log('🗑️ Comment deleted:', deletedCommentId);
+      // Refresh comments to update the list
+      fetchComments();
+    });
+
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('newComment');
+      socket.off('commentDeleted');
+    };
+  }, [socket]);
 
   const fetchComments = async () => {
     try {

@@ -1,0 +1,13 @@
+client/
+node_modules/
+.git/
+.env.local
+.env.development
+*.md
+!README.md
+.dockerignore
+docker-compose*.yml
+Dockerfile.frontend
+Dockerfile.client
+nginx.conf
+mongo-init.js

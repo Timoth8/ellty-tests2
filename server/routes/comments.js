@@ -52,6 +52,11 @@ router.post('/', authMiddleware, async (req, res) => {
     const newComment = await comment.save();
     const populatedComment = await Comment.findById(newComment._id)
       .populate('userId', 'name avatar email');
+    
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.emit('newComment', populatedComment);
+    
     res.status(201).json(populatedComment);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -74,6 +79,10 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     
     // Delete the comment and all its replies
     await deleteCommentAndReplies(comment._id);
+    
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.emit('commentDeleted', req.params.id);
     
     res.json({ message: 'Comment deleted successfully' });
   } catch (error) {

@@ -16,6 +16,22 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  const loadUser = async () => {
+    try {
+      const response = await axios.get('/api/auth/me');
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to load user:', error);
+      // Clear token if invalid
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+      delete axios.defaults.headers.common['Authorization'];
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Set auth header for all axios requests
   useEffect(() => {
     if (token) {
@@ -25,19 +41,8 @@ export const AuthProvider = ({ children }) => {
       delete axios.defaults.headers.common['Authorization'];
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
-
-  const loadUser = async () => {
-    try {
-      const response = await axios.get('/api/auth/me');
-      setUser(response.data);
-    } catch (error) {
-      console.error('Failed to load user:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const login = async (email, password) => {
     try {

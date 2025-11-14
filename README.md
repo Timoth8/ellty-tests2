@@ -4,6 +4,7 @@ A full-stack nested comment system built with React, Express.js, MongoDB, and Ta
 
 ## 📋 Features
 
+- ✅ **Real-time updates** - Live comments with Socket.IO (no refresh needed!)
 - ✅ Nested/threaded comments with unlimited depth
 - ✅ **JWT Authentication** - Secure login and registration system
 - ✅ **Authorization** - Users can only delete their own comments
@@ -29,17 +30,19 @@ A full-stack nested comment system built with React, Express.js, MongoDB, and Ta
 - **Mongoose** - MongoDB ODM
 - **JWT** - Authentication
 - **bcryptjs** - Password hashing
+- **Socket.IO** - Real-time bidirectional communication
 
 ### Frontend
 - **React** - UI library
 - **Tailwind CSS** - Utility-first CSS framework
 - **Axios** - HTTP client
+- **Socket.IO Client** - Real-time updates
 - **React Context API** - State management
 
 ### DevOps
 - **Docker** - Containerization
 - **Docker Compose** - Multi-container orchestration
-- **Nginx** - Reverse proxy and static file serving
+- **Nginx** - Reverse proxy with WebSocket support
 
 ## 📦 Prerequisites
 
@@ -282,10 +285,44 @@ The application matches the provided screenshot with:
 
 ## 🧪 Testing the Application
 
+### Basic Testing
 1. **View existing comments**: See the seeded data displayed in nested format
-2. **Add a new comment**: Use the form at the top
+2. **Add a new comment**: Use the form at the top (requires login)
 3. **Reply to a comment**: Click "Reply" under any comment
 4. **Check nesting**: Replies should appear indented under their parents
+5. **Delete your comment**: Click delete on your own comments
+
+### 🔌 Testing Real-Time Features
+
+**Open the app in multiple browser windows to see real-time updates:**
+
+1. **Open two browser windows**:
+   ```
+   Window 1: http://localhost:3000
+   Window 2: http://localhost:3000 (incognito/private mode)
+   ```
+
+2. **Test real-time comment creation**:
+   - Login in Window 1 (use alex@example.com / password123)
+   - Post a new comment
+   - ✅ Watch it appear instantly in Window 2 (no refresh!)
+
+3. **Test real-time replies**:
+   - Reply to a comment in Window 1
+   - ✅ See the nested reply appear immediately in Window 2
+
+4. **Test real-time deletion**:
+   - Delete your comment in Window 1
+   - ✅ Watch it disappear from Window 2 in real-time
+
+**Console logs** (Open DevTools > Console):
+```
+🔌 Connected to real-time server
+📨 New comment received
+🗑️ Comment deleted
+```
+
+**For complete real-time documentation**, see [REALTIME_FEATURES.md](./REALTIME_FEATURES.md)
 
 ## 🔧 Troubleshooting
 
@@ -320,6 +357,22 @@ npm run install-all
 - Colors: Edit `client/tailwind.config.js`
 - API URL: Configured via proxy in `client/package.json`
 - Database: Modify `.env` file
+
+## 🌐 Production Deployment
+
+### Railway (Backend) + Vercel (Frontend)
+
+**Quick Steps**:
+1. Create MongoDB Atlas database (free)
+2. Deploy backend to Railway
+3. Deploy frontend to Vercel
+4. Connect them with environment variables
+
+**Complete Guide**: See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed step-by-step instructions
+
+**Quick Reference**: See [DEPLOYMENT_QUICKREF.md](./DEPLOYMENT_QUICKREF.md) for quick commands
+
+**Alternative**: See [DOCKER_README.md](./DOCKER_README.md) for Docker-based deployment
 
 ## 🤝 Contributing
 
